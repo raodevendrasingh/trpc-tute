@@ -20,7 +20,7 @@ export default function RootLayout({
 }>) {
 	return (
 		<TRPCReactProvider>
-			<html lang="en" suppressHydrationWarning>
+			<html lang="en" suppressHydrationWarning className="dark">
 				<body className={`${outfitSans.variable} antialiased`}>
 					{children}
 				</body>

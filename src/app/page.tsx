@@ -3,6 +3,16 @@ import { createTRPCContext, createCallerFactory } from "@/trpc/init";
 import TrpcClientDemo from "./_components/TrpcClientDemo";
 import TrpcApiDemo from "./_components/TrpcApiDemo";
 import UserManagementDemo from "./_components/UserManagementDemo";
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export default async function Home() {
 	// Server-side tRPC usage - create a caller
@@ -17,151 +27,212 @@ export default async function Home() {
 
 	return (
 		<div className="min-h-screen p-8 max-w-4xl mx-auto bg-background">
-			<h1 className="text-3xl font-bold mb-8 text-foreground">
-				tRPC Demo App
-			</h1>
+			<div className="text-center mb-12">
+				<h1 className="text-4xl font-bold mb-4 text-foreground">
+					tRPC Demo App
+				</h1>
+				<p className="text-muted-foreground text-lg">
+					A comprehensive demonstration of tRPC with Next.js and
+					TypeScript
+				</p>
+			</div>
 
 			{/* Server-side data */}
-			<div className="mb-12">
-				<h2 className="text-2xl font-semibold mb-6 text-foreground">
-					Server-side Data (SSR)
-				</h2>
-
-				<div className="bg-primary/10 border border-primary/20 p-4 rounded-lg mb-6">
-					<h3 className="font-medium mb-3 text-primary">
-						User Info:
-					</h3>
-					<div className="space-y-1">
-						<p className="text-sm text-foreground">
-							User ID:{" "}
-							<span className="font-mono">{userInfo.userId}</span>
-						</p>
-						<p className="text-sm text-foreground">
-							Message:{" "}
-							<span className="font-medium">
-								{userInfo.message}
-							</span>
-						</p>
-					</div>
+			<div className="mb-16">
+				<div className="flex items-center gap-3 mb-8">
+					<h2 className="text-2xl font-semibold text-foreground">
+						Server-side Data
+					</h2>
+					<Badge variant="secondary">SSR</Badge>
 				</div>
 
-				<div className="bg-secondary/50 border border-secondary p-4 rounded-lg mb-6">
-					<h3 className="font-medium mb-3 text-secondary-foreground">
-						All Todos:
-					</h3>
-					<ul className="space-y-3">
-						{todos.map((todo) => (
-							<li
-								key={todo.id}
-								className="flex items-center gap-3 p-2 bg-background/50 rounded border"
-							>
-								<input
-									type="checkbox"
-									checked={todo.completed}
-									readOnly
-									className="rounded w-4 h-4"
-								/>
-								<span
-									className={
-										todo.completed
-											? "line-through text-muted-foreground"
-											: "text-foreground"
-									}
-								>
-									{todo.text}
-								</span>
-							</li>
-						))}
-					</ul>
-				</div>
-
-				<div className="bg-accent/50 border border-accent p-4 rounded-lg mb-6">
-					<h3 className="font-medium mb-3 text-accent-foreground">
-						Specific Todo (ID: 1):
-					</h3>
-					{specificTodo ? (
-						<p
-							className={
-								specificTodo.completed
-									? "line-through text-muted-foreground"
-									: "text-foreground"
-							}
-						>
-							{specificTodo.text}
-						</p>
-					) : (
-						<p className="text-sm text-muted-foreground">
-							Todo not found
-						</p>
-					)}
-				</div>
-
-				<div className="bg-blue-50 border border-blue-200 p-4 rounded-lg mb-6">
-					<h3 className="font-medium mb-3 text-blue-700">
-						All Posts:
-					</h3>
-					<div className="space-y-3">
-						{posts.map((post) => (
-							<div
-								key={post.id}
-								className="p-3 bg-white rounded border"
-							>
-								<h4 className="font-medium text-foreground mb-1">
-									{post.title}
-								</h4>
-								<p className="text-sm text-muted-foreground mb-2">
-									{post.content}
-								</p>
-								<p className="text-xs text-muted-foreground">
-									Author ID: {post.authorId}
-								</p>
+				<div className="grid gap-6">
+					<Card>
+						<CardHeader>
+							<CardTitle className="text-lg">
+								User Information
+							</CardTitle>
+							<CardDescription>
+								Server-side user data
+							</CardDescription>
+						</CardHeader>
+						<CardContent>
+							<div className="space-y-2">
+								<div className="flex items-center gap-2">
+									<span className="text-sm font-medium">
+										User ID:
+									</span>
+									<Badge
+										variant="outline"
+										className="font-mono"
+									>
+										{userInfo.userId}
+									</Badge>
+								</div>
+								<div className="flex items-center gap-2">
+									<span className="text-sm font-medium">
+										Message:
+									</span>
+									<span className="text-sm">
+										{userInfo.message}
+									</span>
+								</div>
 							</div>
-						))}
-					</div>
-				</div>
+						</CardContent>
+					</Card>
 
-				<div className="bg-green-50 border border-green-200 p-4 rounded-lg mb-6">
-					<h3 className="font-medium mb-3 text-green-700">
-						All Users:
-					</h3>
-					<div className="space-y-2">
-						{users.map((user) => (
-							<div
-								key={user.id}
-								className="p-3 bg-white rounded border"
-							>
-								<p className="font-medium text-foreground">
-									{user.name}
-								</p>
+					<Card>
+						<CardHeader>
+							<CardTitle className="text-lg">Todo List</CardTitle>
+							<CardDescription>
+								All todos from server-side rendering
+							</CardDescription>
+						</CardHeader>
+						<CardContent>
+							<div className="space-y-3">
+								{todos.map((todo) => (
+									<div
+										key={todo.id}
+										className="flex items-center gap-3 p-3 border rounded-lg bg-card"
+									>
+										<Checkbox
+											checked={todo.completed}
+											disabled
+											className="data-[state=checked]:bg-muted-foreground data-[state=checked]:border-muted-foreground"
+										/>
+										<span
+											className={
+												todo.completed
+													? "line-through text-muted-foreground"
+													: "text-foreground"
+											}
+										>
+											{todo.text}
+										</span>
+									</div>
+								))}
+							</div>
+						</CardContent>
+					</Card>
+
+					<Card>
+						<CardHeader>
+							<CardTitle className="text-lg">
+								Specific Todo
+							</CardTitle>
+							<CardDescription>Todo with ID: 1</CardDescription>
+						</CardHeader>
+						<CardContent>
+							{specificTodo ? (
+								<div className="p-3 border rounded-lg bg-card">
+									<p
+										className={
+											specificTodo.completed
+												? "line-through text-muted-foreground"
+												: "text-foreground"
+										}
+									>
+										{specificTodo.text}
+									</p>
+								</div>
+							) : (
 								<p className="text-sm text-muted-foreground">
-									{user.email}
+									Todo not found
 								</p>
+							)}
+						</CardContent>
+					</Card>
+
+					<Card>
+						<CardHeader>
+							<CardTitle className="text-lg">Posts</CardTitle>
+							<CardDescription>
+								All posts from server-side rendering
+							</CardDescription>
+						</CardHeader>
+						<CardContent>
+							<div className="space-y-4">
+								{posts.map((post) => (
+									<div
+										key={post.id}
+										className="p-4 border rounded-lg bg-card"
+									>
+										<h4 className="font-semibold mb-2">
+											{post.title}
+										</h4>
+										<p className="text-sm text-muted-foreground mb-3">
+											{post.content}
+										</p>
+										<Badge variant="secondary">
+											Author ID: {post.authorId}
+										</Badge>
+									</div>
+								))}
 							</div>
-						))}
-					</div>
+						</CardContent>
+					</Card>
+
+					<Card>
+						<CardHeader>
+							<CardTitle className="text-lg">Users</CardTitle>
+							<CardDescription>
+								All users from server-side rendering
+							</CardDescription>
+						</CardHeader>
+						<CardContent>
+							<div className="space-y-3">
+								{users.map((user) => (
+									<div
+										key={user.id}
+										className="p-3 border rounded-lg bg-card"
+									>
+										<p className="font-medium">
+											{user.name}
+										</p>
+										<p className="text-sm text-muted-foreground">
+											{user.email}
+										</p>
+									</div>
+								))}
+							</div>
+						</CardContent>
+					</Card>
 				</div>
 			</div>
 
 			{/* Client-side components */}
-			<div className="space-y-12">
+			<div className="space-y-16">
 				<div>
-					<h2 className="text-2xl font-semibold mb-6 text-foreground">
-						Basic Client-side Demo
-					</h2>
+					<div className="flex items-center gap-3 mb-8">
+						<h2 className="text-2xl font-semibold text-foreground">
+							Basic Client-side Demo
+						</h2>
+						<Badge variant="secondary">CSR</Badge>
+					</div>
 					<TrpcClientDemo />
 				</div>
 
+				<Separator />
+
 				<div>
-					<h2 className="text-2xl font-semibold mb-6 text-foreground">
-						Comprehensive API Demo
-					</h2>
+					<div className="flex items-center gap-3 mb-8">
+						<h2 className="text-2xl font-semibold text-foreground">
+							Comprehensive API Demo
+						</h2>
+						<Badge variant="secondary">Interactive</Badge>
+					</div>
 					<TrpcApiDemo />
 				</div>
 
+				<Separator />
+
 				<div>
-					<h2 className="text-2xl font-semibold mb-6 text-foreground">
-						User Management Demo
-					</h2>
+					<div className="flex items-center gap-3 mb-8">
+						<h2 className="text-2xl font-semibold text-foreground">
+							User Management Demo
+						</h2>
+						<Badge variant="secondary">CRUD</Badge>
+					</div>
 					<UserManagementDemo />
 				</div>
 			</div>
