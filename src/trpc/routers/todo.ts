@@ -1,28 +1,30 @@
 import { createTRPCRouter, baseProcedure } from "../init";
 import { z } from "zod";
 
+// In-memory storage (in real app, use a database)
+let todos = [
+	{ id: 1, text: "Learn tRPC", completed: false },
+	{ id: 2, text: "Build awesome apps", completed: true },
+	{ id: 3, text: "Deploy to production", completed: false },
+];
+
 // This is like your /api/todos/* routes
 export const todoRouter = createTRPCRouter({
 	// GET /api/todos (get all todos)
 	getTodos: baseProcedure.query(async () => {
-		// In real app, this would query your database
-		return [
-			{ id: 1, text: "Learn tRPC", completed: false },
-			{ id: 2, text: "Build awesome apps", completed: true },
-			{ id: 3, text: "Deploy to production", completed: false },
-		];
+		return todos;
 	}),
 
 	// POST /api/todo (create todo)
 	createTodo: baseProcedure
 		.input(z.object({ text: z.string().min(1) }))
 		.mutation(async ({ input }) => {
-			// In real app, save to database
 			const newTodo = {
 				id: Math.floor(Math.random() * 1000),
 				text: input.text,
 				completed: false,
 			};
+			todos.push(newTodo);
 			return newTodo;
 		}),
 
@@ -30,12 +32,6 @@ export const todoRouter = createTRPCRouter({
 	getTodoById: baseProcedure
 		.input(z.object({ id: z.number() }))
 		.query(async ({ input }) => {
-			// In real app, query database by ID
-			const todos = [
-				{ id: 1, text: "Learn tRPC", completed: false },
-				{ id: 2, text: "Build awesome apps", completed: true },
-				{ id: 3, text: "Deploy to production", completed: false },
-			];
 			return todos.find((todo) => todo.id === input.id);
 		}),
 
@@ -49,31 +45,45 @@ export const todoRouter = createTRPCRouter({
 			})
 		)
 		.mutation(async ({ input }) => {
-			// In real app, update in database
-			return {
-				id: input.id,
-				text: input.text || "Updated todo",
-				completed: input.completed ?? false,
-			};
+			const todoIndex = todos.findIndex((todo) => todo.id === input.id);
+			if (todoIndex === -1) {
+				throw new Error("Todo not found");
+			}
+
+			if (input.text !== undefined) {
+				todos[todoIndex].text = input.text;
+			}
+			if (input.completed !== undefined) {
+				todos[todoIndex].completed = input.completed;
+			}
+
+			return todos[todoIndex];
 		}),
 
 	// DELETE /api/todo/:id (delete todo)
 	deleteTodo: baseProcedure
 		.input(z.object({ id: z.number() }))
 		.mutation(async ({ input }) => {
-			// In real app, delete from database
-			return { success: true, deletedId: input.id };
+			const todoIndex = todos.findIndex((todo) => todo.id === input.id);
+			if (todoIndex === -1) {
+				throw new Error("Todo not found");
+			}
+
+			const deletedTodo = todos[todoIndex];
+			todos.splice(todoIndex, 1);
+			return deletedTodo;
 		}),
 
 	// PATCH /api/todo/:id/toggle (toggle todo completion)
 	toggleTodo: baseProcedure
 		.input(z.object({ id: z.number() }))
 		.mutation(async ({ input }) => {
-			// In real app, toggle in database
-			return {
-				id: input.id,
-				text: "Sample todo",
-				completed: true, // toggled
-			};
+			const todoIndex = todos.findIndex((todo) => todo.id === input.id);
+			if (todoIndex === -1) {
+				throw new Error("Todo not found");
+			}
+
+			todos[todoIndex].completed = !todos[todoIndex].completed;
+			return todos[todoIndex];
 		}),
 });

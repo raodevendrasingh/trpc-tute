@@ -1,25 +1,27 @@
 import { createTRPCRouter, baseProcedure } from "../init";
 import { z } from "zod";
 
+// In-memory storage (in real app, use a database)
+let posts = [
+	{
+		id: 1,
+		title: "First Post",
+		content: "This is my first post",
+		authorId: 1,
+	},
+	{
+		id: 2,
+		title: "Second Post",
+		content: "Another great post",
+		authorId: 2,
+	},
+];
+
 // This is like your /api/posts/* routes
 export const postRouter = createTRPCRouter({
 	// GET /api/posts (get all posts)
 	getPosts: baseProcedure.query(async () => {
-		// In real app, this would query your database
-		return [
-			{
-				id: 1,
-				title: "First Post",
-				content: "This is my first post",
-				authorId: 1,
-			},
-			{
-				id: 2,
-				title: "Second Post",
-				content: "Another great post",
-				authorId: 2,
-			},
-		];
+		return posts;
 	}),
 
 	// POST /api/post (create post)
@@ -32,13 +34,13 @@ export const postRouter = createTRPCRouter({
 			})
 		)
 		.mutation(async ({ input }) => {
-			// In real app, save to database
 			const newPost = {
 				id: Math.floor(Math.random() * 1000),
 				title: input.title,
 				content: input.content,
 				authorId: input.authorId,
 			};
+			posts.push(newPost);
 			return newPost;
 		}),
 
@@ -46,21 +48,6 @@ export const postRouter = createTRPCRouter({
 	getPostById: baseProcedure
 		.input(z.object({ id: z.number() }))
 		.query(async ({ input }) => {
-			// In real app, query database by ID
-			const posts = [
-				{
-					id: 1,
-					title: "First Post",
-					content: "This is my first post",
-					authorId: 1,
-				},
-				{
-					id: 2,
-					title: "Second Post",
-					content: "Another great post",
-					authorId: 2,
-				},
-			];
 			return posts.find((post) => post.id === input.id);
 		}),
 
@@ -74,20 +61,32 @@ export const postRouter = createTRPCRouter({
 			})
 		)
 		.mutation(async ({ input }) => {
-			// In real app, update in database
-			return {
-				id: input.id,
-				title: input.title || "Updated Title",
-				content: input.content || "Updated content",
-				authorId: 1, // In real app, get from context
-			};
+			const postIndex = posts.findIndex((post) => post.id === input.id);
+			if (postIndex === -1) {
+				throw new Error("Post not found");
+			}
+
+			if (input.title !== undefined) {
+				posts[postIndex].title = input.title;
+			}
+			if (input.content !== undefined) {
+				posts[postIndex].content = input.content;
+			}
+
+			return posts[postIndex];
 		}),
 
 	// DELETE /api/post/:id (delete post)
 	deletePost: baseProcedure
 		.input(z.object({ id: z.number() }))
 		.mutation(async ({ input }) => {
-			// In real app, delete from database
-			return { success: true, deletedId: input.id };
+			const postIndex = posts.findIndex((post) => post.id === input.id);
+			if (postIndex === -1) {
+				throw new Error("Post not found");
+			}
+
+			const deletedPost = posts[postIndex];
+			posts.splice(postIndex, 1);
+			return deletedPost;
 		}),
 });
